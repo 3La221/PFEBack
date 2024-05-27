@@ -2,17 +2,19 @@ from django.shortcuts import render
 from django.shortcuts import render
 from django.contrib.auth import authenticate
 
+from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
+
 from .serializers import *
 from .permissions import *
 from rest_framework import status, filters
 from rest_framework.response import Response
-from rest_framework.decorators import api_view,permission_classes
+from rest_framework.decorators import api_view,permission_classes,parser_classes
 from rest_framework.permissions import IsAuthenticated
 
 from .serializers import *
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
-from .utils import get_medicaments_data
+from .utils import get_medicaments_data,add_maladies_data
 from django.http import JsonResponse
 
 
@@ -39,6 +41,41 @@ def register(request):
                 'role' : role
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@parser_classes([JSONParser, FormParser, MultiPartParser])
+def register_doctor(request):
+    if request.method == 'POST':
+        print(request.data)
+        serializer = DoctorSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            tokens = RefreshToken.for_user(user)
+            return Response({
+                'id':user.id,
+                'refresh': str(tokens),
+                'access': str(tokens.access_token),
+                'role' : "Doctor"
+            }, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def register_labo(request):
+    if request.method == 'POST':
+        serializer = LaboSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            tokens = RefreshToken.for_user(user)
+            return Response({
+                'id':user.id,
+                'refresh': str(tokens),
+                'access': str(tokens.access_token),
+                'role' : "Labo"
+            }, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['POST'])
 def login(request):
@@ -151,6 +188,41 @@ class MedicamentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIVi
 
 
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def consultation(request,id):
+    consultation = Consultation.objects.get(id=id)
+    serializers = ConsultationSerializer(instance=consultation,many=False)
+    return Response(serializers.data,status=status.HTTP_200_OK)
+
+    
+    
+@api_view(["POST"])
+@permission_classes([IsAuthenticated,IsDoctor])
+def demande_document(request,id):
+    request.data["patient"] = id
+    print("USER",request.user.id)
+    request.data["doctor"] = request.user.id
+    serializer = DocumentMedicaleSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response("Document Demande Added !!", status=status.HTTP_201_CREATED)
+    
+
+
+@api_view(["POST","GET","PUT"])
+def add_document_doctor(request,id):
+    if request.method == "POST":
+        request.data["patient"] = id
+        request.data["doctor"] = request.user.id
+        serializer = DocumentMedicaleSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response("Document Added !!", status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 @api_view(["POST","GET","PUT"])
 def add_document(request,id):
     if request.method == "POST":
@@ -158,7 +230,7 @@ def add_document(request,id):
         try:
             if request.data["type_doc"] == "C":
                 request.data["doctor"] = request.user.id
-            else:
+            else:  
                 request.data["labo"] = request.user.id
         except KeyError:
             request.data["labo"] = request.user.id
@@ -172,6 +244,16 @@ def add_document(request,id):
         documents = patient.documents.all()
         serializer = DocumentMedicaleSerializer(instance=documents,many=True)
         return Response(serializer.data,status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+def get_documents(request,id):
+    patient = Patient.objects.get(id=id)
+    documents = patient.documents.all()
+    serializer = DocumentMedicaleSerializer(instance=documents,many=True)
+    return Response(serializer.data,status=status.HTTP_200_OK)
+
+
 
 
 @api_view(["GET"])
@@ -233,12 +315,21 @@ def add_consultation(request,id):
         serializer = ConsultationSerializer(instance=consultations,many=True)
         return Response(serializer.data,status=status.HTTP_200_OK)
 
-
-
+@api_view(["POST"])
+def add_maladie(request,id):
+    patient = Patient.objects.get(id=id)
+    try:
+        maladie = Maladie.objects.get(id=request.data["maladie"])
+    except Maladie.DoesNotExist:
+        return Response("Maladie not found",status=status.HTTP_404_NOT_FOUND)
+    
+    patient.maladies.add(maladie)
+    return Response("Maladie Added !!", status=status.HTTP_201_CREATED)
 
 
 
 def data(request):
-    get_medicaments_data()
+    # get_medicaments_data()
+    # add_maladies_data()
     
     return JsonResponse({"data":"Data Added"})

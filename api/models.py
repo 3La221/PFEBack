@@ -124,7 +124,7 @@ class Maladie(models.Model):
     name = models.CharField(max_length=100,blank=True,null= True)
     isChronic = models.BooleanField(default=False)
     maladie_type = models.CharField(max_length=80,choices=[(tag.name,tag.value) for tag in TypeMaladie])
-
+    allergie = models.BooleanField(default=False)
     def __str__(self) -> str:
         return self.name
 
@@ -154,7 +154,6 @@ class DocumentMedicale(models.Model):
     patient = models.ForeignKey(Patient,on_delete=models.CASCADE,related_name ="documents")
     labo = models.ForeignKey(Labo,on_delete=models.CASCADE,related_name ="documents",null=True,blank=True)
     doctor = models.ForeignKey(Doctor,on_delete=models.CASCADE,related_name ="documents",null=True,blank=True)
-    ordonance = models.ForeignKey(Ordonance,on_delete=models.CASCADE,related_name ="documents",null=True,blank=True)
     document = models.FileField(upload_to='documents/',null=True,blank=True)
     date = models.DateTimeField(default=timezone.now)
     note = models.TextField(null=True , blank =True)

@@ -1,0 +1,66 @@
+<VirtualHost *:80>
+    ServerName petro-dz.com
+    ServerAlias www.petro-dz.com
+
+    DocumentRoot /home/petromag-dz/petro
+
+    ErrorLog /var/log/apache2/petro-dz.com_error.log
+    CustomLog /var/log/apache2/petro-dz.com_access.log combined
+
+     <Directory /home/petromag-dz/petro/gestion_emp>
+        <Files wsgi.py>
+            Require all granted
+        </Files>
+    </Directory>
+
+    
+    WSGIDaemonProcess petro-dz python-path=/home/petromag-dz/petro python-home=/home/petromag-dz/petro/venv
+    WSGIProcessGroup petro-dz
+    WSGIScriptAlias / /home/petromag-dz/petro/gestion_emp/wsgi.py process-group=petro-dz
+</VirtualHost>
+
+<VirtualHost *:443>
+    ServerName petro-dz.com
+    ServerAlias www.petro-dz.com
+
+    DocumentRoot /home/petromag-dz/petro
+
+    ErrorLog /var/log/apache2/petro-dz.com_error.log
+    CustomLog /var/log/apache2/petro-dz.com_access.log combined
+
+ 
+    <Directory /home/petromag-dz/petro/gestion_emp >
+        <Files wsgi.py>
+            Require all granted
+        </Files>
+    </Directory>
+
+    WSGIDaemonProcess petro-dz python-path=/home/petromag-dz/petro python-home=/home/petromag-dz/petro/venv
+    WSGIProcessGroup petro-dz
+    WSGIScriptAlias / /home/petromag-dz/petro/gestion_emp/wsgi.py process-group=petro-dz
+</VirtualHost>
+
+
+
+
+
+<VirtualHost *:80>
+    ServerName petro-dz.com
+    ServerAlias www.petro-dz.com
+
+    DocumentRoot /home/petromag-dz/petro
+
+    ErrorLog /var/log/apache2/petro-dz.com_error.log
+    CustomLog /var/log/apache2/petro-dz.com_access.log combined
+
+    <Directory /home/petromag-dz/petro/gestion_emp>
+        <Files wsgi.py>
+            Require all granted
+        </Files>
+    </Directory>
+
+    WSGIScriptAlias / /home/petromag-dz/petro/gestion_emp/wsgi.py
+    WSGIDaemonProcess django_app python-path=/home/petromag-dz/petro python-home=/home/petromag-dz/petro/venv
+    WSGIProcessGroup django_app
+</VirtualHost>
+

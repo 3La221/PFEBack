@@ -15,13 +15,18 @@ class PatientSerializer(ModelSerializer):
         user = Patient.objects.create_user(**validated_data)
         return user
 
-class PatientDetailsSerializer(ModelSerializer):
+class MaladieDSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Maladie
+        fields = ['name','allergie']
 
+class PatientDetailsSerializer(ModelSerializer):
+    maladies = MaladieDSerializer(many=True)
     class Meta:
         model = Patient
         fields = ['id','img' ,'carte_id', 'birth_date', 'numero_tel', 'blood_type', 'gender',
-                'emergency_number', 'married', 'maladies', 'consultations','nbr_children', 'address',
-                'documents','first_name','last_name'
+                'emergency_number', 'married', 'maladies', 'consultations','nbr_children', 'address'
+                ,'first_name','last_name'
                 ]
 
 
@@ -38,7 +43,15 @@ class DoctorSerializer(ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        user =  Doctor.objects.create_user(**validated_data)
+        user = Doctor.objects.create_user(
+            carte_id=validated_data['carte_id'],
+            specialite=validated_data['specialite'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            email=validated_data['email'],
+            password=validated_data['password'],  # Ensure to handle password hashing
+            certeficat=validated_data['certeficat']
+        )
         return user
 
 class LaboSerializer(ModelSerializer):
@@ -47,7 +60,13 @@ class LaboSerializer(ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        user =  Labo.objects.create_user(**validated_data)
+        user = Labo.objects.create_user(
+            email=validated_data['email'],
+            password=validated_data['password'],  # Ensure to handle password hashing
+            certeficat=validated_data['certeficat'],
+            labo_number = validated_data['labo_number'],
+            name = validated_data['name']
+        )
         return user
     
 class DoctorInfoSerializer(ModelSerializer):
@@ -126,11 +145,10 @@ class DocumentMedicaleSerializer(ModelSerializer):
 
 class OrdonanceSerializer(ModelSerializer):
     medicaments = MedicamentDetailsSerializer(many=True)
-    documents =DocumentMedicaleSerializer(many=True)
     
     class Meta:
         model = Ordonance
-        fields = ['medicaments','documents']
+        fields = ['medicaments']
     
 
 
@@ -142,6 +160,17 @@ class ConsultationSerializer(ModelSerializer):
     class Meta:
         model = Consultation
         fields = ['id','patient','doctor','maladie','note','date','maladie','ordonance']
+    
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        try:
+            doctor = Doctor.objects.get(id=instance.doctor.id)
+            representation['doctor'] = f'Dr.{doctor.first_name} {doctor.last_name}'  # Concatenate first_name and last_name
+        except:
+            pass
+        representation['date'] = instance.date.strftime('%Y-%m-%d')
+        
+        return representation
     
     
     def create(self, validated_data):
@@ -163,9 +192,6 @@ class ConsultationSerializer(ModelSerializer):
         
         for medicament in medicaments:
             MedicamentDetails.objects.create(ordonance = ordonance , **medicament)
-        
-        documents = ordonance_data['documents']
-        for document in ordonance_data['documents']:
-            DocumentMedicale.objects.create(ordonance = ordonance ,doctor=doctor ,**document)
+    
         
         return consultation
