@@ -339,8 +339,13 @@ def add_maladie(request,id):
     patient.maladies.add(maladie)
     return Response("Maladie Added !!", status=status.HTTP_201_CREATED)
 
-@api_view(["POST"])
+@api_view(["POST","DELETE"])
 def add_antec(request,id):
+    if request.method == "DELETE":
+        patient = Patient.objects.get(id=id)
+        maladie = Maladie.objects.get(id=request.data["maladie"])
+        patient.antecedents.remove(maladie)
+        return Response("Antecedent Removed !!", status=status.HTTP_201_CREATED)
     patient = Patient.objects.get(id=id)
     try:
         maladie = Maladie.objects.get(id=request.data["maladie"])
@@ -357,8 +362,13 @@ def data(request):
     
     return JsonResponse({"data":"Data Added"})
 
-@api_view(["POST"])
+@api_view(["POST","DELETE"])
 def add_allergie(request,id):
+    if request.method == "DELETE":
+        patient = Patient.objects.get(id=id)
+        allergie = Allergie.objects.get(id=request.data["allergie"])
+        patient.allergies.remove(allergie)
+        return Response("Allergie Removed !!", status=status.HTTP_201_CREATED)
     patient = Patient.objects.get(id=id)
     allergie , _ = Allergie.objects.get_or_create(name=request.data["name"])
     
