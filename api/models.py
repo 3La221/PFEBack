@@ -37,6 +37,7 @@ class Patient(Profile):
     married = models.BooleanField(default=False)
     nbr_children = models.IntegerField(default=0)
     maladies = models.ManyToManyField("Maladie",blank=True)
+    antecedents = models.ManyToManyField("Maladie",blank=True,related_name="antecedents")
     
     REQUIRED_FIELDS = ["carte_id"]
 

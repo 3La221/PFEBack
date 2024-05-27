@@ -23,7 +23,7 @@ urlpatterns = [
     
     #Patient Info
     path("patient/<str:pk>/",views.get_patient_details,name="patient-details"),
-    
+    path("patient/card/<str:pk>", views.get_patient_cardinfo, name="paitent-info"),
     # path("add_ordonance/<str:id>/", views.add_ordonance, name="add-ordonance"),
     # path("ordonances/<str:pk>/" , views.get_patient_ordonances ,name="patient-ordonances" ),    
 
@@ -46,6 +46,7 @@ urlpatterns = [
     
     path('consultation/<str:id>/',views.consultation,name="consultations"),
     path("add_maladie/<str:id>/",views.add_maladie,name="add-maladie"),
+    path("add_antecedent/<str:id>/",views.add_antec,name="add-antecd"),
     
     
     path("data/",views.data,name="data")

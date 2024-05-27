@@ -143,6 +143,14 @@ def login(request):
 #             return Response(serializer.data , status=status.HTTP_200_OK )
 #         return Response("You can't access this data" , status=status.HTTP_401_UNAUTHORIZED)
 
+@api_view(['GET'])
+
+def get_patient_cardinfo(request,pk):
+    if request.method == "GET":
+        patient = Patient.objects.get(id=pk)
+        serializer = PatientInfoSerializer(instance=patient,many=False)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+
 
 @api_view(['GET'])
 def get_patient_details(request,pk):
@@ -326,7 +334,16 @@ def add_maladie(request,id):
     patient.maladies.add(maladie)
     return Response("Maladie Added !!", status=status.HTTP_201_CREATED)
 
-
+@api_view(["POST"])
+def add_antec(request,id):
+    patient = Patient.objects.get(id=id)
+    try:
+        maladie = Maladie.objects.get(id=request.data["maladie"])
+    except Maladie.DoesNotExist:
+        return Response("Maladie not found",status=status.HTTP_404_NOT_FOUND)
+    
+    patient.antecedents.add(maladie)
+    return Response("Antecedent Added !!", status=status.HTTP_201_CREATED)
 
 def data(request):
     # get_medicaments_data()
