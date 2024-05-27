@@ -18,27 +18,51 @@ class PatientSerializer(ModelSerializer):
 class MaladieDSerializer(serializers.ModelSerializer):
     class Meta:
         model = Maladie
-        fields = ['id','name','allergie','isChronic']
+        fields = ['id','name','isChronic']
+
+class AllergieSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Allergie
+        fields = ['id','name','affiche']
 
 class PatientDetailsSerializer(ModelSerializer):
     maladies = MaladieDSerializer(many=True)
     antecedents = MaladieDSerializer(many=True)
+    radios = serializers.SerializerMethodField()
+    analyses = serializers.SerializerMethodField()
+    chirurgies = serializers.SerializerMethodField()
+    allergies = AllergieSerializer(many=True)
+    
+    
+    def get_chirurgies(self, obj):
+        chirurgies = obj.documents.filter(type_doc='C')
+        return DocumentMedicaleSerializer(chirurgies, many=True).data
+    
+    def get_radios(self, obj):
+        radios = obj.documents.filter(type_doc='R')
+        return DocumentMedicaleSerializer(radios, many=True).data
+    
+    def get_analyses(self,obj):
+        analyses = obj.documents.filter(type_doc='A')
+        return DocumentMedicaleSerializer(analyses, many=True).data
+    
+    
     class Meta:
         model = Patient
         fields = ['id','img' ,'carte_id', 'birth_date', 'numero_tel', 'blood_type', 'gender',
                 'emergency_number', 'married', 'maladies', 'consultations','nbr_children', 'address'
-                ,'first_name','last_name','antecedents'
+                ,'first_name','last_name','antecedents','radios','analyses','chirurgies','allergies'
                 ]
 
 
 class PatientInfoSerializer(ModelSerializer):
     antecedents = MaladieDSerializer(many=True)
     maladies = serializers.SerializerMethodField()
+    allergies =AllergieSerializer(many=True)
+
     
     def get_maladies(self, obj):
-        # Filter maladies where isChronic is True
         chronic_maladies = obj.maladies.filter(isChronic=True)
-        # Use MaladySerializer to serialize the filtered maladies
         return MaladieDSerializer(chronic_maladies, many=True).data
 
     
@@ -46,7 +70,7 @@ class PatientInfoSerializer(ModelSerializer):
         model = Patient
         fields = ['id','first_name','last_name' ,'carte_id', 'birth_date', 'numero_tel',
                 'blood_type', 'gender', 'emergency_number','address','nbr_children',
-                'married', 'maladies','antecedents']
+                'married', 'maladies','antecedents','allergies']
         
 
 

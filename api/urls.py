@@ -32,7 +32,8 @@ urlpatterns = [
     path('maladies/<str:pk>/', views.MaladieRetrieveUpdateDestroyAPIView.as_view(), name='maladie-detail'),
     path('medicaments/', views.MedicamentListCreateAPIView.as_view(), name='medicament-list-create'),
     path('medicaments/<str:pk>/', views.MedicamentRetrieveUpdateDestroyAPIView.as_view(), name='medicament-detail'),
-    
+    path("allergies/",views.AllergieListCreateAPIView.as_view(),name="allergies"),
+
     
     path("doctor/add_document/<str:id>",views.add_document_doctor,name="add-document"),
     path('add_document/<str:id>',views.add_document,name="add-document"),
@@ -43,10 +44,11 @@ urlpatterns = [
     path('radios/<str:id>',views.radios,name="radios"),
     path('analyses/<str:id>',views.analyses,name="analyses"),
     path('chirurgies/<str:id>',views.chirurgies,name="chirurgies"),
-    
+        
     path('consultation/<str:id>/',views.consultation,name="consultations"),
     path("add_maladie/<str:id>/",views.add_maladie,name="add-maladie"),
     path("add_antecedent/<str:id>/",views.add_antec,name="add-antecd"),
+    path("add_allergie/<str:id>/",views.add_allergie,name="add-allergie"),
     
     
     path("data/",views.data,name="data")

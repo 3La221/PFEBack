@@ -1,5 +1,5 @@
 from django.contrib.auth.backends import BaseBackend
-from .models import Profile,Medicament,Maladie
+from .models import Profile,Medicament,Maladie,Allergie
 import openpyxl
 
 
@@ -89,3 +89,41 @@ def add_maladies_data():
     for m in maladie_donnees:
         maladie = Maladie.objects.create(name=m['name'],isChronic=m['is_chronic'],maladie_type=m['maladie_type'],allergie=m['allergie'])
         maladie.save()
+        
+def add_allergies_data():
+    allergies = [
+    "Arachides",  # Peanuts
+    "Fruits à coque",  # Tree nuts (e.g., almonds, walnuts, cashews)
+    "Fruits de mer",  # Shellfish (e.g., shrimp, crab, lobster)
+    "Poisson",  # Fish (e.g., salmon, tuna)
+    "Lait",  # Milk
+    "Œufs",  # Eggs
+    "Blé",  # Wheat
+    "Soja",  # Soy
+    "Sésame",  # Sesame
+    "Pollen",  # Pollen (from trees, grasses, and weeds)
+    "Acariens",  # Dust mites
+    "Spores de moisissures",  # Mold spores
+    "Squames d'animaux",  # Animal dander (from pets like cats and dogs)
+    "Excréments de cafards",  # Cockroach droppings
+    "Pénicilline et autres antibiotiques",  # Penicillin and other antibiotics
+    "Aspirine et anti-inflammatoires non stéroïdiens (AINS)",  # Aspirin and NSAIDs
+    "Anticonvulsivants",  # Anticonvulsants
+    "Médicaments de chimiothérapie",  # Chemotherapy drugs
+    "Anesthésie",  # Anesthesia
+    "Piqûres d'abeilles",  # Bee stings
+    "Piqûres de guêpes",  # Wasp stings
+    "Piqûres de frelons",  # Hornet stings
+    "Piqûres de vestes jaunes",  # Yellow jacket stings
+    "Piqûres de fourmis de feu",  # Fire ant stings
+    "Latex",  # Latex (natural rubber)
+    "Nickel",  # Nickel (found in jewelry, belt buckles)
+    "Herbe à puce, chêne toxique et sumac vénéneux",  # Poison ivy, poison oak, and poison sumac
+    "Parfums",  # Fragrances (in perfumes, soaps)
+    "Conservateurs",  # Preservatives (in cosmetics, topical medications)
+    "Certains produits chimiques",  # Certain chemicals (e.g., in cleaning products, hair dyes)
+    "Certaines plantes"  # Certain plants (e.g., ragweed, certain flowers)
+]
+    for a in allergies:
+        a = Allergie.objects.create(name=a)
+        a.save()

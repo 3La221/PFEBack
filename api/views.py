@@ -14,7 +14,7 @@ from rest_framework.permissions import IsAuthenticated
 from .serializers import *
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
-from .utils import get_medicaments_data,add_maladies_data
+from .utils import get_medicaments_data,add_maladies_data,add_allergies_data
 from django.http import JsonResponse
 
 
@@ -165,6 +165,8 @@ class MaladieListCreateAPIView(generics.ListCreateAPIView):
     queryset = Maladie.objects.all()
     serializer_class = MaladieSerializer
 
+
+
 class MaladieRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Maladie.objects.all()
     serializer_class = MaladieSerializer
@@ -177,6 +179,9 @@ class MedicamentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIVi
     queryset = Medicament.objects.all()
     serializer_class = MedicamentSerializer
 
+class AllergieListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Allergie.objects.all()
+    serializer_class = AllergieSerializer
 
     
 # @api_view(['POST','GET'])
@@ -348,5 +353,14 @@ def add_antec(request,id):
 def data(request):
     # get_medicaments_data()
     # add_maladies_data()
+    #add_allergies_data()
     
     return JsonResponse({"data":"Data Added"})
+
+@api_view(["POST"])
+def add_allergie(request,id):
+    patient = Patient.objects.get(id=id)
+    allergie , _ = Allergie.objects.get_or_create(name=request.data["name"])
+    
+    patient.allergies.add(allergie)
+    return Response("Allergie Added !!", status=status.HTTP_201_CREATED)

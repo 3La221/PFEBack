@@ -38,6 +38,7 @@ class Patient(Profile):
     nbr_children = models.IntegerField(default=0)
     maladies = models.ManyToManyField("Maladie",blank=True)
     antecedents = models.ManyToManyField("Maladie",blank=True,related_name="antecedents")
+    allergies = models.ManyToManyField("Allergie",blank=True)
     
     REQUIRED_FIELDS = ["carte_id"]
 
@@ -125,7 +126,13 @@ class Maladie(models.Model):
     name = models.CharField(max_length=100,blank=True,null= True)
     isChronic = models.BooleanField(default=False)
     maladie_type = models.CharField(max_length=80,choices=[(tag.name,tag.value) for tag in TypeMaladie])
-    allergie = models.BooleanField(default=False)
+    def __str__(self) -> str:
+        return self.name
+    
+class Allergie(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=100,blank=True,null= True,unique=True)
+    affiche = models.BooleanField(default=True)
     def __str__(self) -> str:
         return self.name
 
