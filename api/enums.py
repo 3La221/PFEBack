@@ -84,3 +84,9 @@ class AnalyseMedicale(Enum):
 class TypeDoc(Enum):
     RADIO = "Radio",
     ANALYSE = "Analyse",
+    
+class SituationMatrimoniale(Enum):
+    CELIBATAIRE = "Célibataire"
+    MARIE = "Marié(e)"
+    DIVORCE = "Divorcé(e)"
+    VEUF = "Veuf/Veuve"

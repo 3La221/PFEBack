@@ -34,7 +34,7 @@ class Patient(Profile):
     blood_type = models.CharField(max_length=3, choices=[(tag.value, tag.name) for tag in BloodType],null=True , blank = True)
     gender = models.CharField(max_length=10, choices=[(tag.value, tag.name) for tag in Gender],null=True , blank = True)
     emergency_number = models.CharField(max_length=20, blank=True, null=True)
-    married = models.BooleanField(default=False)
+    married = models.CharField(max_length=20, choices= [(tag.value , tag.name) for tag in SituationMatrimoniale ] , null =True , blank = True , default= SituationMatrimoniale.CELIBATAIRE)
     nbr_children = models.IntegerField(default=0)
     maladies = models.ManyToManyField("Maladie",blank=True)
     antecedents = models.ManyToManyField("Maladie",blank=True,related_name="antecedents")
