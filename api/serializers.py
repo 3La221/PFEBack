@@ -24,6 +24,75 @@ class AllergieSerializer(serializers.ModelSerializer):
     class Meta:
         model = Allergie
         fields = ['id','name','affiche']
+        
+class MedicamentDetailsSerializer(ModelSerializer):
+    class Meta:
+        model = MedicamentDetails
+        fields = '__all__'
+        
+class MedicamentSerializer(ModelSerializer):
+    class Meta:
+        model = Medicament
+        fields = '__all__'
+        
+        
+class MaladieSerializer(ModelSerializer):
+    class Meta:
+        model = Maladie
+        fields = '__all__'
+
+class OrdonanceSerializer(ModelSerializer):
+    medicaments = MedicamentDetailsSerializer(many=True)
+    
+    class Meta:
+        model = Ordonance
+        fields = ['medicaments']
+    
+
+
+
+
+
+class ConsultationSerializer(ModelSerializer):
+    ordonance = OrdonanceSerializer()
+    class Meta:
+        model = Consultation
+        fields = ['id','patient','doctor','maladie','note','date','maladie','ordonance']
+    
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        try:
+            doctor = Doctor.objects.get(id=instance.doctor.id)
+            representation['doctor'] = f'Dr.{doctor.first_name} {doctor.last_name}'  # Concatenate first_name and last_name
+        except:
+            pass
+        representation['date'] = instance.date.strftime('%Y-%m-%d')
+        
+        return representation
+    
+    
+    def create(self, validated_data):
+        patient = validated_data['patient']
+        doctor = validated_data['doctor']
+        maladies = validated_data.pop('maladie',[])
+        ordonance_data = validated_data.pop('ordonance')
+        
+        
+        consultation = Consultation.objects.create(**validated_data)
+        
+        for maladie in maladies:
+            consultation.maladie.add(maladie)
+            patient.maladies.add(maladie)
+        
+        
+        ordonance = Ordonance.objects.create(consultaion = consultation)
+        medicaments = ordonance_data['medicaments']
+        
+        for medicament in medicaments:
+            MedicamentDetails.objects.create(ordonance = ordonance , **medicament)
+    
+        
+        return consultation
 
 class PatientDetailsSerializer(ModelSerializer):
     maladies = MaladieDSerializer(many=True)
@@ -32,6 +101,7 @@ class PatientDetailsSerializer(ModelSerializer):
     analyses = serializers.SerializerMethodField()
     chirurgies = serializers.SerializerMethodField()
     allergies = AllergieSerializer(many=True)
+    consultations = ConsultationSerializer(many=True)
     
     
     def get_chirurgies(self, obj):
@@ -116,21 +186,7 @@ class DoctorInfoSerializer(ModelSerializer):
         return user
 
 
-class MedicamentDetailsSerializer(ModelSerializer):
-    class Meta:
-        model = MedicamentDetails
-        fields = '__all__'
-        
-class MedicamentSerializer(ModelSerializer):
-    class Meta:
-        model = Medicament
-        fields = '__all__'
-        
-        
-class MaladieSerializer(ModelSerializer):
-    class Meta:
-        model = Maladie
-        fields = '__all__'
+
         
 
 
@@ -179,56 +235,3 @@ class DocumentMedicaleSerializer(ModelSerializer):
 #             DocumentMedicale.objects.create(ordonance = ordonance , **document)        
 #         return ordonance
 
-
-class OrdonanceSerializer(ModelSerializer):
-    medicaments = MedicamentDetailsSerializer(many=True)
-    
-    class Meta:
-        model = Ordonance
-        fields = ['medicaments']
-    
-
-
-
-
-
-class ConsultationSerializer(ModelSerializer):
-    ordonance = OrdonanceSerializer()
-    class Meta:
-        model = Consultation
-        fields = ['id','patient','doctor','maladie','note','date','maladie','ordonance']
-    
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        try:
-            doctor = Doctor.objects.get(id=instance.doctor.id)
-            representation['doctor'] = f'Dr.{doctor.first_name} {doctor.last_name}'  # Concatenate first_name and last_name
-        except:
-            pass
-        representation['date'] = instance.date.strftime('%Y-%m-%d')
-        
-        return representation
-    
-    
-    def create(self, validated_data):
-        patient = validated_data['patient']
-        doctor = validated_data['doctor']
-        maladies = validated_data.pop('maladie',[])
-        ordonance_data = validated_data.pop('ordonance')
-        
-        
-        consultation = Consultation.objects.create(**validated_data)
-        
-        for maladie in maladies:
-            consultation.maladie.add(maladie)
-            patient.maladies.add(maladie)
-        
-        
-        ordonance = Ordonance.objects.create(consultaion = consultation)
-        medicaments = ordonance_data['medicaments']
-        
-        for medicament in medicaments:
-            MedicamentDetails.objects.create(ordonance = ordonance , **medicament)
-    
-        
-        return consultation
