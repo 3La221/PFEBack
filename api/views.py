@@ -220,7 +220,7 @@ def demande_document(request,id):
     if serializer.is_valid():
         serializer.save()
         return Response("Document Demande Added !!", status=status.HTTP_201_CREATED)
-    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST","GET","PUT"])

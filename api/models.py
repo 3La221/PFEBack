@@ -107,7 +107,8 @@ class Consultation(models.Model):
     patient = models.ForeignKey(Patient,on_delete=models.CASCADE,related_name ="consultations")
     doctor = models.ForeignKey(Doctor,on_delete=models.CASCADE,related_name ="consultations")
     note = models.TextField(blank=True, null = True)
-    maladie = models.ManyToManyField("Maladie",related_name ="maladies")
+    maladie = models.ForeignKey("Maladie",related_name ="maladies" ,
+                                on_delete=models.CASCADE,null=True,blank=True)
     
     
     def __str__(self) -> str:
@@ -126,6 +127,7 @@ class Maladie(models.Model):
     name = models.CharField(max_length=100,blank=True,null= True)
     isChronic = models.BooleanField(default=False)
     maladie_type = models.CharField(max_length=80,choices=[(tag.name,tag.value) for tag in TypeMaladie])
+    
     def __str__(self) -> str:
         return self.name
     

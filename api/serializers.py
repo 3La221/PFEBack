@@ -18,7 +18,7 @@ class PatientSerializer(ModelSerializer):
 class MaladieDSerializer(serializers.ModelSerializer):
     class Meta:
         model = Maladie
-        fields = ['id','name','isChronic']
+        fields = ['id','name','isChronic','maladie_type']
 
 class AllergieSerializer(serializers.ModelSerializer):
     class Meta:
@@ -51,7 +51,10 @@ class OrdonanceSerializer(ModelSerializer):
 
 
 
-
+class MaladieDSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Maladie
+        fields = ['id','name','isChronic','maladie_type']
 
 class ConsultationSerializer(ModelSerializer):
     ordonance = OrdonanceSerializer()
@@ -67,6 +70,11 @@ class ConsultationSerializer(ModelSerializer):
         except:
             pass
         representation['date'] = instance.date.strftime('%Y-%m-%d')
+        try :
+            maladie = Maladie.objects.get(id=instance.maladie.id)
+            representation['maladie'] = MaladieSerializer(maladie).data
+        except:
+            pass
         
         return representation
     
@@ -74,15 +82,13 @@ class ConsultationSerializer(ModelSerializer):
     def create(self, validated_data):
         patient = validated_data['patient']
         doctor = validated_data['doctor']
-        maladies = validated_data.pop('maladie',[])
+        maladie = validated_data['maladie']
         ordonance_data = validated_data.pop('ordonance')
         
         
         consultation = Consultation.objects.create(**validated_data)
         
-        for maladie in maladies:
-            consultation.maladie.add(maladie)
-            patient.maladies.add(maladie)
+        patient.maladies.add(maladie)
         
         
         ordonance = Ordonance.objects.create(consultaion = consultation)
@@ -119,9 +125,15 @@ class PatientDetailsSerializer(ModelSerializer):
     
     class Meta:
         model = Patient
-        fields = ['id','img' ,'carte_id', 'birth_date', 'numero_tel', 'blood_type', 'gender',
-                'emergency_number', 'married', 'maladies', 'consultations','nbr_children', 'address'
-                ,'first_name','last_name','antecedents','radios','analyses','chirurgies','allergies'
+        fields = ['id','first_name','last_name','img',
+                'carte_id', 'birth_date', 'numero_tel',
+                'blood_type', 'gender',
+                'emergency_number', 'married', 'maladies','allergies','antecedents',
+                'radios',
+                'analyses',
+                'chirurgies',
+                'consultations','nbr_children', 'address'
+                
                 ]
 
 
