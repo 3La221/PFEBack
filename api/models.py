@@ -62,7 +62,7 @@ class Patient(Profile):
         qr.add_data(data)
         qr.make(fit=True)
         img = qr.make_image(fill_color="black", back_color="white")
-        img_path = f"patient_qr{self.id}.png"  # Adjust the path as needed
+        img_path = f"./media/patient_qr{self.id}.png"  # Adjust the path as needed
         
         img.save(img_path)
         
