@@ -50,6 +50,14 @@ urlpatterns = [
     path("add_antecedent/<str:id>/",views.add_antec,name="add-antecd"),
     path("add_allergie/<str:id>/",views.add_allergie,name="add-allergie"),
     
+    path("validate/<str:id>/",views.valider_account,name="validate-account"),
+    
+    path("doctor/",views.DoctorListCreateAPIView.as_view(),name="doctor-list-create"),
+    path("doctor/<str:pk>/",views.DoctorRetrieveUpdateDestroyAPIView.as_view(),name="doctor-detail"),
+    
+    path("labo/",views.LaboListCreateAPIView.as_view(),name="labo-list-create"),
+    path("labo/<str:pk>/",views.LaboRetrieveUpdateDestroyAPIView.as_view(),name="labo-detail"),
+    
     
     path("data/",views.data,name="data")
 ]

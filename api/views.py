@@ -53,10 +53,8 @@ def register_doctor(request):
             user = serializer.save()
             tokens = RefreshToken.for_user(user)
             return Response({
-                'id':user.id,
-                'refresh': str(tokens),
-                'access': str(tokens.access_token),
-                'role' : "Doctor"
+                "message":"Now you have to wait for the admin to validate your account",
+                "id":user.id
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -69,10 +67,8 @@ def register_labo(request):
             user = serializer.save()
             tokens = RefreshToken.for_user(user)
             return Response({
-                'id':user.id,
-                'refresh': str(tokens),
-                'access': str(tokens.access_token),
-                'role' : "Labo"
+               "message":"Now you have to wait for the admin to validate your account",
+               "id":user.id
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -374,3 +370,32 @@ def add_allergie(request,id):
     
     patient.allergies.add(allergie)
     return Response("Allergie Added !!", status=status.HTTP_201_CREATED)
+
+
+@api_view(["POST"])
+def valider_account(request,id):
+    user = Profile.objects.get(id=id)
+    if hasattr(user, 'doctor'):
+        user.doctor.valide = True
+        user.doctor.save()
+    elif hasattr(user, 'labo'):
+        user.labo.valide = True
+        user.labo.save()
+    return Response("Account Validated !!", status=status.HTTP_201_CREATED)
+
+class LaboListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Labo.objects.all()
+    serializer_class = LaboInfoSerializer
+    
+
+class LaboRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Labo.objects.all()
+    serializer_class = LaboInfoSerializer
+
+class DoctorListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Doctor.objects.all()
+    serializer_class = DoctorInfoSerializer
+
+class DoctorRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Doctor.objects.all()
+    serializer_class = DoctorInfoSerializer

@@ -224,6 +224,20 @@ class DocumentMedicaleSerializer(ModelSerializer):
         return representation
 
 
+class LaboInfoSerializer(ModelSerializer):
+    class Meta:
+        model = Labo
+        fields = ['id','name','labo_number','address','valide','email','certeficat']
+        
+
+class DoctorInfoSerializer(ModelSerializer):
+    class Meta:
+        model = Doctor
+        fields = ['id','first_name','last_name','specialite','email','certeficat','valide','carte_id']
+        
+    
+
+
 # class OrdonanceSerializer(ModelSerializer):
     
 #     medicaments = MedicamentDetailsSerializer(many=True)  
