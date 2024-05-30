@@ -111,7 +111,7 @@ class ConsultationSerializer(ModelSerializer):
 class AntecedentSerializer(ModelSerializer):
     class Meta:
         model = Antecedent
-        fields = ['name','membre','cateogry']
+        fields = ['id','name','membre','cateogry']
         
 
 

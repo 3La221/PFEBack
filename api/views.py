@@ -346,8 +346,8 @@ def add_maladie(request,id):
 def add_antec(request,id):
     if request.method == "DELETE":
         patient = Patient.objects.get(id=id)
-        maladie = Maladie.objects.get(id=request.data["maladie"])
-        patient.antecedents.remove(maladie)
+        antecedent = Antecedent.objects.get(id=request.data["antecedent"])
+        patient.antecedents.remove(antecedent)
         return Response("Antecedent Removed !!", status=status.HTTP_201_CREATED)
     patient = Patient.objects.get(id=id)
     antecedent = Antecedent.objects.create(**request.data)
