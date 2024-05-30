@@ -245,11 +245,18 @@ class DocumentMedicaleSerializer(ModelSerializer):
         
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        try:
-            doctor = Doctor.objects.get(id=instance.doctor.id)
-            representation['doctor'] = f'Dr.{doctor.first_name} {doctor.last_name}'  # Concatenate first_name and last_name
-        except:
-            pass
+        
+        user = Profile.objects.get(id=representation["doctor"])
+        if hasattr(user, 'doctor'):
+            doctor = Doctor.objects.get(id=representation["doctor"])
+            representation['doctor'] = f'Dr.{doctor.first_name} {doctor.last_name}'
+        elif hasattr(user, 'labo'):
+            labo = Labo.objects.get(id=representation["doctor"])
+            representation['doctor'] = f'{labo.name} Labo'
+        elif hasattr(user, 'centre'):
+            centre = Centre.objects.get(id=representation["doctor"])
+            representation['doctor'] = f'{centre.name} Centre'
+            
         representation['date'] = instance.date.strftime('%Y-%m-%d')
         
 
@@ -267,7 +274,8 @@ class DoctorInfoSerializer(ModelSerializer):
         model = Doctor
         fields = ['id','first_name','last_name','specialite','email','certeficat','valide','carte_id']
         
-    
+
+
 
 
 

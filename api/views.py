@@ -308,12 +308,11 @@ def medicale_doc(request,id):
         serializer = DocumentMedicaleSerializer(instance=doc,many=False)
         return Response(serializer.data,status=status.HTTP_200_OK)
     if request.method == "PUT":
-        request.data["demande"] = False
-        serializer = DocumentMedicaleSerializer(instance=doc,data=request.data,partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response("Document Updated !!", status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        doc.demande = False 
+        profile = Profile.objects.get(id=request.user.id)
+        doc.doctor = profile
+        doc.save()
+        return Response("Document Updated !!", status=status.HTTP_201_CREATED)
 
 
 @api_view(["POST","GET"])
