@@ -391,6 +391,17 @@ def valider_account(request,id):
         user.labo.save()
     return Response("Account Validated !!", status=status.HTTP_201_CREATED)
 
+@api_view(["DELETE"])
+def non_valide(request,id):
+    user = Profile.objects.get(id=id)
+    if hasattr(user, 'doctor'):
+        user.doctor.delete()
+    elif hasattr(user, 'labo'):
+        user.labo.delete()
+    elif hasattr(user,'centre'):
+        user.centre.delete()
+    return Response("Account Deleted !!", status=status.HTTP_201_CREATED)
+
 class LaboListCreateAPIView(generics.ListCreateAPIView):
     queryset = Labo.objects.all()
     serializer_class = LaboInfoSerializer
@@ -407,3 +418,19 @@ class DoctorListCreateAPIView(generics.ListCreateAPIView):
 class DoctorRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Doctor.objects.all()
     serializer_class = DoctorInfoSerializer
+    
+    
+@api_view(["GET"])
+def get_non_valide(request):
+    doctors = Doctor.objects.filter(valide=False)
+    labos = Labo.objects.filter(valide=False)
+    centres = Centre.objects.filter(valide=False)
+    serializer = DoctorInfoSerializer(instance=doctors,many=True)
+    serializer2 = LaboInfoSerializer(instance=labos,many=True)
+    serializer3 = CentreSerializer(instance=centres,many=True)
+    
+    return Response({
+        "doctors":serializer.data,
+        "labos":serializer2.data,
+        "centres":serializer3.data
+    },status=status.HTTP_200_OK)

@@ -60,7 +60,8 @@ urlpatterns = [
     path("labo/",views.LaboListCreateAPIView.as_view(),name="labo-list-create"),
     path("labo/<str:pk>/",views.LaboRetrieveUpdateDestroyAPIView.as_view(),name="labo-detail"),
     
-    
+    path("non_valide/",views.get_non_valide,name="non-valide"),
+    path("refuse/<str:id>/",views.non_valide,name="refuse"),
     path("data/",views.data,name="data")
 ]
 

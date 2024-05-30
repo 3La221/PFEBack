@@ -28,7 +28,16 @@ class AllergieSerializer(serializers.ModelSerializer):
 class MedicamentDetailsSerializer(ModelSerializer):
     class Meta:
         model = MedicamentDetails
-        fields = '__all__'
+        fields = ['medicament','qte','duree']
+        
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        try:
+            medicament = Medicament.objects.get(id=instance.medicament.id)
+            representation['medicament'] = medicament.name
+        except:
+            pass
+        return representation
         
 class MedicamentSerializer(ModelSerializer):
     class Meta:
@@ -41,12 +50,12 @@ class MaladieSerializer(ModelSerializer):
         model = Maladie
         fields = '__all__'
 
-class OrdonanceSerializer(ModelSerializer):
-    medicaments = MedicamentDetailsSerializer(many=True)
+# class OrdonanceSerializer(ModelSerializer):
+#     medicaments = MedicamentDetailsSerializer(many=True)
     
-    class Meta:
-        model = Ordonance
-        fields = ['medicaments']
+#     class Meta:
+#         model = Ordonance
+#         fields = ['medicaments']
     
 
 
@@ -57,10 +66,11 @@ class MaladieDSerializer(serializers.ModelSerializer):
         fields = ['id','name','isChronic','maladie_type']
 
 class ConsultationSerializer(ModelSerializer):
-    ordonance = OrdonanceSerializer()
+    # ordonance = OrdonanceSerializer()
+    medicaments = MedicamentDetailsSerializer(many=True)
     class Meta:
         model = Consultation
-        fields = ['id','patient','doctor','maladie','note','date','maladie','ordonance']
+        fields = ['id','patient','doctor','maladie','note','date','maladie','medicaments']
     
     def to_representation(self, instance):
         representation = super().to_representation(instance)
@@ -81,21 +91,18 @@ class ConsultationSerializer(ModelSerializer):
     
     def create(self, validated_data):
         patient = validated_data['patient']
-        doctor = validated_data['doctor']
         maladie = validated_data['maladie']
-        ordonance_data = validated_data.pop('ordonance')
+        medicaments = validated_data.pop('medicaments',[])
         
         
         consultation = Consultation.objects.create(**validated_data)
         
         patient.maladies.add(maladie)
         
-        
-        ordonance = Ordonance.objects.create(consultaion = consultation)
-        medicaments = ordonance_data['medicaments']
+    
         
         for medicament in medicaments:
-            MedicamentDetails.objects.create(ordonance = ordonance , **medicament)
+            MedicamentDetails.objects.create(consultation = consultation , **medicament)
     
         
         return consultation
@@ -253,26 +260,5 @@ class DoctorInfoSerializer(ModelSerializer):
     
 
 
-# class OrdonanceSerializer(ModelSerializer):
-    
-#     medicaments = MedicamentDetailsSerializer(many=True)  
-#     documents = DocumentMedicaleSerializer(many=True)
-    
-#     class Meta:
-#         model = Ordonance
-#         fields = ['documents','medicaments']
 
-#     def create(self, validated_data):
-#         medicaments_data = validated_data.pop('medicaments',[])
-#         documents_data = validated_data.pop('documents',[])
-        
-#         ordonance = Ordonance.objects.create(**validated_data)
-        
-#         for medicament_data in medicaments_data:
-#             MedicamentDetails.objects.create(ordonance = ordonance , **medicament_data)
-        
-        
-#         for document in documents_data:
-#             DocumentMedicale.objects.create(ordonance = ordonance , **document)        
-#         return ordonance
 

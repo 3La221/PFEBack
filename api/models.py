@@ -119,12 +119,7 @@ class Consultation(models.Model):
         return f'{self.patient} - {self.doctor} - {self.date} Consultaion'
 
 
-class Ordonance(models.Model):
-    consultaion = models.OneToOneField(Consultation,on_delete=models.CASCADE,related_name ="ordonance",null=True)
-    
 
-    def __str__(self) -> str:
-        return f'Ordonance {self.consultaion}'
     
 class Maladie(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -153,12 +148,11 @@ class MedicamentDetails(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     qte = models.IntegerField(default=1)
     duree = models.IntegerField(default=7)
-    isChronic = models.BooleanField(default=False)
+    # isChronic = models.BooleanField(default=False)
     medicament = models.ForeignKey(Medicament,null=True,blank=True , on_delete=models.CASCADE)
-    ordonance = models.ForeignKey(Ordonance , on_delete = models.CASCADE , null = True , blank =True,related_name="medicaments")
-    
+    consultation = models.ForeignKey(Consultation , on_delete = models.CASCADE , null = True , blank =True,related_name="medicaments")
     def __str__(self) -> str:
-        return f'{self.medicament} - {self.ordonance}'
+        return f'{self.medicament} - {self.consultation}'
 
 class DocumentMedicale(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
