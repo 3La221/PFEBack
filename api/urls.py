@@ -18,6 +18,8 @@ urlpatterns = [
     
     path("login/", views.login , name="login"),
     
+    path("login/superAdmin",views.superuser_login , name="super_login"),
+    
     path('token/refresh/', refresh_jwt_token, name='token_refresh'),
 
     

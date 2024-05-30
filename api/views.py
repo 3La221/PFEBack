@@ -23,13 +23,8 @@ from django.http import JsonResponse
 @api_view(['POST'])
 def register(request):
     if request.method == 'POST':
-        try:
-            role = request.data.pop("role")
-            serializer = PatientSerializer(data=request.data) if role == "P" else (DoctorSerializer(data=request.data)
-                                                                                if role == "D" else
-                                                                                LaboSerializer(data=request.data)) 
-        except KeyError:
-            return Response("Please pass the role : D for Doctor P for Patient ...", status=status.HTTP_400_BAD_REQUEST)
+        
+        serializer = PatientSerializer(data=request.data) 
 
         if serializer.is_valid():
             user = serializer.save()
@@ -38,7 +33,7 @@ def register(request):
                 'id':user.id,
                 'refresh': str(tokens),
                 'access': str(tokens.access_token),
-                'role' : role
+                'role' : "P"
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -71,7 +66,38 @@ def register_labo(request):
                "id":user.id
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    
+@api_view(['POST'])
+def register_centre(request):
+    if request.method == 'POST':
+        serializer = CentreSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            tokens = RefreshToken.for_user(user)
+            return Response({
+               "message":"Now you have to wait for the admin to validate your account",
+               "id":user.id
+            }, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['POST'])
+def superuser_login(request):
+    if request.method == 'POST':
+        email = request.data.get("email")
+        password = request.data.get("password")
+        user = authenticate(email=email, password=password)
+        if user is not None:
+            if user.is_superuser:
+                tokens = RefreshToken.for_user(user)
+                return Response({
+                    "refresh": str(tokens),
+                    "access": str(tokens.access_token),
+                    "role":"A"
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response({"detail": "Not a superuser."}, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            return Response({"detail": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['POST'])
 def login(request):
@@ -89,16 +115,20 @@ def login(request):
             tokens = RefreshToken.for_user(user)
 
             if hasattr(user, 'patient'):
-                role = 'Patient'
+                role = 'P'
 
             elif hasattr(user, 'doctor'):
                 if not user.doctor.valide:
                     return Response({'detail': 'Your account is not validated yet'}, status=status.HTTP_401_UNAUTHORIZED)
-                role = 'Doctor'
+                role = 'D'
             elif hasattr(user, 'labo'):
                 if not user.labo.valide:
                     return Response({'detail': 'Your account is not validated yet'}, status=status.HTTP_401_UNAUTHORIZED)
-                role = 'Labo'
+                role = 'L'
+            elif hasattr(user,'centre'):
+                if not user.centre.valide:
+                    return Response({'detail': 'Your account is not validated yet'}, status=status.HTTP_401_UNAUTHORIZED)
+                role = 'C'
 
                 
             return Response({
@@ -153,7 +183,6 @@ def get_patient_details(request,pk):
     if request.method == "GET":
         patient = Patient.objects.get(id=pk) 
         serializer = PatientDetailsSerializer(instance=patient,many=False)
-        # serializer = PatientInfoSerializer(instance=patient,many=False) if (request.user.id != pk and not hasattr(request.user, 'doctor') or (not request.user.is_authenticated) or not hasattr(request.user, 'labo') ) else PatientDetailsSerializer(instance=patient,many=False)
         return Response(serializer.data,status=status.HTTP_200_OK)
 
         
@@ -179,26 +208,11 @@ class AllergieListCreateAPIView(generics.ListCreateAPIView):
     queryset = Allergie.objects.all()
     serializer_class = AllergieSerializer
 
-    
-# @api_view(['POST','GET'])
-# @permission_classes([IsAuthenticated , IsHospital])
-# def get_doctors(request):
-#     if request.method == "GET":
-#         hospital = Hospital.objects.get(id=request.user.id)
-#         doctors = hospital.doctors.all()
-#         serializer = DoctorInfoSerializer(instance=doctors,many=True)
-#         return Response(serializer.data,status=status.HTTP_200_OK)
-#     if request.method == "POST":
-#         doctor_id = request.data["id"]
-#         doctor = Doctor.objects.get(id=doctor_id)
-#         doctor.hospitals.add(request.user.id) 
-#         doctor.save()
-#         return Response(f"{doctor} Added to your hospital",status= status.HTTP_400_BAD_REQUEST)
+
 
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
 def consultation(request,id):
     consultation = Consultation.objects.get(id=id)
     serializers = ConsultationSerializer(instance=consultation,many=False)
@@ -207,7 +221,6 @@ def consultation(request,id):
     
     
 @api_view(["POST"])
-@permission_classes([IsAuthenticated,IsDoctor])
 def demande_document(request,id):
     request.data["patient"] = id
     print("USER",request.user.id)
@@ -266,7 +279,6 @@ def get_documents(request,id):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
 def radios(request,id):
     patient = Patient.objects.get(id=id)
     documents = patient.documents.filter(type_doc="R")
@@ -274,7 +286,6 @@ def radios(request,id):
     return Response(serializer.data,status=status.HTTP_200_OK)
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
 def analyses(request,id):
     patient = Patient.objects.get(id=id)
     documents = patient.documents.filter(type_doc="A")
@@ -282,7 +293,6 @@ def analyses(request,id):
     return Response(serializer.data,status=status.HTTP_200_OK)
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
 def chirurgies(request,id):
     if request.method == "GET":
         patient = Patient.objects.get(id=id)
@@ -307,12 +317,10 @@ def medicale_doc(request,id):
 
 
 @api_view(["POST","GET"])
-@permission_classes([IsAuthenticated , IsDoctor])
 def add_consultation(request,id):
     if request.method == "POST":
         request.data["patient"] = id
         request.data["doctor"] = request.user.id
-                
         serializer = ConsultationSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()

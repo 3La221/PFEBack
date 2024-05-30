@@ -96,6 +96,10 @@ class Labo(Profile):
         
     def __str__(self) -> str:
         return  f'{self.name} Labo'
+
+class Centre(Labo):
+    def __str__(self) -> str:
+        return  f'{self.name} Centre'
     
     
 

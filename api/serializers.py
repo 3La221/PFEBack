@@ -187,6 +187,21 @@ class LaboSerializer(ModelSerializer):
             name = validated_data['name']
         )
         return user
+
+class CentreSerializer(ModelSerializer):
+    class Meta:
+        model = Centre
+        fields = '__all__'
+
+    def create(self, validated_data):
+        user = Labo.objects.create_user(
+            email=validated_data['email'],
+            password=validated_data['password'],  # Ensure to handle password hashing
+            certeficat=validated_data['certeficat'],
+            labo_number = validated_data['labo_number'],
+            name = validated_data['name']
+        )
+        return user
     
 class DoctorInfoSerializer(ModelSerializer):
     class Meta:
