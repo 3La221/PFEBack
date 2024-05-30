@@ -370,7 +370,13 @@ def add_allergie(request,id):
         patient.allergies.remove(allergie)
         return Response("Allergie Removed !!", status=status.HTTP_201_CREATED)
     patient = Patient.objects.get(id=id)
-    allergie , _ = Allergie.objects.get_or_create(name=request.data["name"])
+    
+    allergie , created = Allergie.objects.get_or_create(name=request.data["name"])
+    
+    if created or allergie.affiche != request.data["affiche"]:
+        allergie.affiche = request.data["affiche"]
+        allergie.save()
+    
     
     patient.allergies.add(allergie)
     return Response("Allergie Added !!", status=status.HTTP_201_CREATED)
