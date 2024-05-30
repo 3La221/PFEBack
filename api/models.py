@@ -37,7 +37,7 @@ class Patient(Profile):
     married = models.CharField(max_length=20, choices= [(tag.value , tag.name) for tag in SituationMatrimoniale ] , null =True , blank = True , default= SituationMatrimoniale.CELIBATAIRE)
     nbr_children = models.IntegerField(default=0)
     maladies = models.ManyToManyField("Maladie",blank=True)
-    antecedents = models.ManyToManyField("Maladie",blank=True,related_name="antecedents")
+    antecedents = models.ManyToManyField("Antecedent",blank=True,related_name="antecedents")
     allergies = models.ManyToManyField("Allergie",blank=True)
     
     REQUIRED_FIELDS = ["carte_id"]
@@ -103,7 +103,14 @@ class Centre(Labo):
     
     
 
-
+class Antecedent(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=100,blank=True,null= True)
+    membre = models.CharField(max_length=100,blank=True,null= True)
+    cateogry = models.CharField(max_length=80,blank=True,null= True)
+    
+    def __str__(self) -> str:
+        return self.name
 
 class Consultation(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

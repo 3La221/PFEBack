@@ -351,12 +351,9 @@ def add_antec(request,id):
         patient.antecedents.remove(maladie)
         return Response("Antecedent Removed !!", status=status.HTTP_201_CREATED)
     patient = Patient.objects.get(id=id)
-    try:
-        maladie = Maladie.objects.get(id=request.data["maladie"])
-    except Maladie.DoesNotExist:
-        return Response("Maladie not found",status=status.HTTP_404_NOT_FOUND)
+    antecedent = Antecedent.objects.create(**request.data)
     
-    patient.antecedents.add(maladie)
+    patient.antecedents.add(antecedent)
     return Response("Antecedent Added !!", status=status.HTTP_201_CREATED)
 
 def data(request):

@@ -106,10 +106,18 @@ class ConsultationSerializer(ModelSerializer):
     
         
         return consultation
+    
+
+class AntecedentSerializer(ModelSerializer):
+    class Meta:
+        model = Antecedent
+        fields = ['name','membre','cateogry']
+        
+
 
 class PatientDetailsSerializer(ModelSerializer):
     maladies = MaladieDSerializer(many=True)
-    antecedents = MaladieDSerializer(many=True)
+    antecedents = AntecedentSerializer(many=True)
     radios = serializers.SerializerMethodField()
     analyses = serializers.SerializerMethodField()
     chirurgies = serializers.SerializerMethodField()
@@ -218,6 +226,8 @@ class DoctorInfoSerializer(ModelSerializer):
     def create(self, validated_data):
         user =  Doctor.objects.create_user(**validated_data)
         return user
+
+
 
 
 
