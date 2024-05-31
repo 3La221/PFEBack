@@ -102,12 +102,12 @@ def superuser_login(request):
 @api_view(['POST'])
 def login(request):
     if request.method == 'POST':
-        id = request.data.get("id")
+        email = request.data.get("email")
         password = request.data.get("password")
         # print("EMAIL",email)
-        print("PASSWORD",password)
+        # print("PASSWORD",password)
 
-        user = authenticate(id=id , password=password)
+        user = authenticate(email=email , password=password)
         
         # print("USER",user)
         
@@ -177,7 +177,7 @@ def does_exist(request):
         patient = Patient.objects.get(id=id)
         return Response("Patient Exist",status=status.HTTP_200_OK)
     except Patient.DoesNotExist:
-        return Response("Patient Doesn't Exist",status=status.HTTP_404_NOT_FOUND)
+        return Response({"message":"Patient Doesn't Exist","exist":False},status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET'])
 
