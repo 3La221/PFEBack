@@ -62,7 +62,9 @@ urlpatterns = [
     
     path("non_valide/",views.get_non_valide,name="non-valide"),
     path("refuse/<str:id>/",views.non_valide,name="refuse"),
-    path("data/",views.data,name="data")
+    path("data/",views.data,name="data"),
+    
+    path("exist/",views.does_exist,name="exist")
 ]
 
 

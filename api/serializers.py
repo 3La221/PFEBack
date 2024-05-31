@@ -153,21 +153,23 @@ class PatientDetailsSerializer(ModelSerializer):
 
 
 class PatientInfoSerializer(ModelSerializer):
-    antecedents = MaladieDSerializer(many=True)
     maladies = serializers.SerializerMethodField()
-    allergies =AllergieSerializer(many=True)
+    allergies = serializers.SerializerMethodField()
 
     
     def get_maladies(self, obj):
         chronic_maladies = obj.maladies.filter(isChronic=True)
         return MaladieDSerializer(chronic_maladies, many=True).data
 
+    def get_allergies(self, obj):
+        affiche_allergies = obj.allergies.filter(affiche=True)
+        return AllergieSerializer(affiche_allergies, many=True).data
     
     class Meta:
         model = Patient
         fields = ['id','first_name','last_name' ,'carte_id', 'birth_date', 'numero_tel',
                 'blood_type', 'gender', 'emergency_number','address','nbr_children',
-                'married', 'maladies','antecedents','allergies']
+                'married', 'maladies','allergies']
         
 
 

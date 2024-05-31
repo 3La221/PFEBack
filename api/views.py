@@ -169,6 +169,16 @@ def login(request):
 #             return Response(serializer.data , status=status.HTTP_200_OK )
 #         return Response("You can't access this data" , status=status.HTTP_401_UNAUTHORIZED)
 
+
+@api_view(['POST'])
+def does_exist(request):
+    id = request.data["id"]
+    try :
+        patient = Patient.objects.get(id=id)
+        return Response("Patient Exist",status=status.HTTP_200_OK)
+    except Patient.DoesNotExist:
+        return Response("Patient Doesn't Exist",status=status.HTTP_404_NOT_FOUND)
+
 @api_view(['GET'])
 
 def get_patient_cardinfo(request,pk):
