@@ -311,6 +311,10 @@ def medicale_doc(request,id):
         doc.demande = False 
         profile = Profile.objects.get(id=request.user.id)
         doc.doctor = profile
+        try:
+            doc.note = request.data["note"]
+        except KeyError:
+            pass
         doc.save()
         return Response("Document Updated !!", status=status.HTTP_201_CREATED)
 
