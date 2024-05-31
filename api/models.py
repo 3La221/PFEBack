@@ -5,6 +5,8 @@ import uuid
 from . managers import ProfileManager
 from .enums import *
 import qrcode
+from django.contrib.auth.hashers import make_password
+
 
 def generate_short_id():
     return str(uuid.uuid4())[:8]
@@ -25,7 +27,6 @@ class Profile(AbstractUser):
     objects = ProfileManager()
     
     
-
 class Patient(Profile):
     carte_id = models.CharField(max_length=255, unique=True)
     img = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
