@@ -186,7 +186,9 @@ class DoctorSerializer(ModelSerializer):
             last_name=validated_data['last_name'],
             email=validated_data['email'],
             password=validated_data['password'],  # Ensure to handle password hashing
-            certeficat=validated_data['certeficat']
+            certeficat=validated_data['certeficat'],
+            labo_number = validated_data['labo_number'],
+            address = validated_data['address']
         )
         return user
 
@@ -201,7 +203,8 @@ class LaboSerializer(ModelSerializer):
             password=validated_data['password'],  # Ensure to handle password hashing
             certeficat=validated_data['certeficat'],
             labo_number = validated_data['labo_number'],
-            name = validated_data['name']
+            name = validated_data['name'],
+            address = validated_data['address']
         )
         return user
 
@@ -216,7 +219,8 @@ class CentreSerializer(ModelSerializer):
             password=validated_data['password'],  # Ensure to handle password hashing
             certeficat=validated_data['certeficat'],
             labo_number = validated_data['labo_number'],
-            name = validated_data['name']
+            name = validated_data['name'],
+            address = validated_data['address']
         )
         return user
     
@@ -265,6 +269,11 @@ class DocumentMedicaleSerializer(ModelSerializer):
         return representation
 
 
+class CenterInfoSerializer(ModelSerializer):
+    class Meta:
+        model = Centre
+        fields = ['id','name','labo_number','address','valide','email','certeficat']
+
 class LaboInfoSerializer(ModelSerializer):
     class Meta:
         model = Labo
@@ -274,7 +283,7 @@ class LaboInfoSerializer(ModelSerializer):
 class DoctorInfoSerializer(ModelSerializer):
     class Meta:
         model = Doctor
-        fields = ['id','first_name','last_name','specialite','email','certeficat','valide','carte_id']
+        fields = ['id','first_name','last_name','specialite','email','certeficat','valide','carte_id','labo_number','address']
         
 
 

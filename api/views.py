@@ -372,7 +372,7 @@ def add_antec(request,id):
 def data(request):
     # get_medicaments_data()
     # add_maladies_data()
-    #add_allergies_data()
+    add_allergies_data()
     
     return JsonResponse({"data":"Data Added"})
 

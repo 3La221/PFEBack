@@ -87,7 +87,7 @@ def add_maladies_data():
 ]
     
     for m in maladie_donnees:
-        maladie = Maladie.objects.create(name=m['name'],isChronic=m['is_chronic'],maladie_type=m['maladie_type'],allergie=m['allergie'])
+        maladie = Maladie.objects.create(name=m['name'],isChronic=m['is_chronic'],maladie_type=m['maladie_type'])
         maladie.save()
         
 def add_allergies_data():
@@ -127,3 +127,4 @@ def add_allergies_data():
     for a in allergies:
         a = Allergie.objects.create(name=a)
         a.save()
+        
