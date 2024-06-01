@@ -75,6 +75,7 @@ class Doctor(Profile):
     carte_id = models.CharField(max_length=255, unique=True)
     valide = models.BooleanField(default=False)
     certeficat = models.ImageField(upload_to='certeficats/', blank=True, null=True)
+    labo_number  = models.CharField(max_length=10, blank=True, null=True)
     specialite = models.CharField(max_length=50, choices=[(tag.value, tag.name) for tag in Specialite] , default = Specialite.AUTRE)
     class Meta:
         verbose_name = "Doctor"

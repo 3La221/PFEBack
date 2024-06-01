@@ -172,10 +172,10 @@ def login(request):
 
 @api_view(['POST'])
 def does_exist(request):
-    id = request.data["id"]
+    carte_id = request.data["carte_id"]
     try :
-        patient = Patient.objects.get(id=id)
-        return Response("Patient Exist",status=status.HTTP_200_OK)
+        patient = Patient.objects.get(carte_id=carte_id)
+        return Response({"message":"Patient Exist" , "exist":True , "id":patient.id } ,status=status.HTTP_200_OK)
     except Patient.DoesNotExist:
         return Response({"message":"Patient Doesn't Exist","exist":False},status=status.HTTP_404_NOT_FOUND)
 
