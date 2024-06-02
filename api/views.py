@@ -16,6 +16,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from .utils import get_medicaments_data,add_maladies_data,add_allergies_data
 from django.http import JsonResponse
+from django.forms.models import model_to_dict
+
 
 
 
@@ -507,7 +509,7 @@ def update_consultation(request,id):
     cons.medicaments.all().delete()
 
     note = request.data.pop('note',cons.note)
-    maladie = request.data.pop('maladie',cons.maladie)
+    maladie = request.data.pop('maladie',model_to_dict(cons.maladie))
     
     for medicament in medicaments:
         medic_id = medicament.pop("medicament")
