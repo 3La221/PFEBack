@@ -80,6 +80,7 @@ class MaladiePSerializer(serializers.ModelSerializer):
         try:
             maladie = Maladie.objects.get(id=instance.maladie.id)
             representation['maladie'] = maladie.name
+            representation['maladie_type'] = maladie.maladie_type
         except:
             pass
         return representation
@@ -198,11 +199,14 @@ class PatientDetailsSerializer(ModelSerializer):
                 'radios',
                 'analyses',
                 'chirurgies',
-                'consultations','nbr_children', 'address'
+                'consultations','nbr_children', 'address','can_demande'
                 
                 ]
 
-
+class PatientChwyaSerializer(ModelSerializer):
+    class Meta:
+        model = Patient
+        fields = ['id','first_name','last_name','email','address','numero_tel']
 class PatientInfoSerializer(ModelSerializer):
     maladies = serializers.SerializerMethodField()
     allergies = serializers.SerializerMethodField()

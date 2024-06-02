@@ -6,6 +6,8 @@ from . managers import ProfileManager
 from .enums import *
 import qrcode
 from django.contrib.auth.hashers import make_password
+from PIL import Image
+
 
 
 def generate_short_id():
@@ -39,6 +41,12 @@ class Patient(Profile):
     nbr_children = models.IntegerField(default=0)
     antecedents = models.ManyToManyField("Antecedent",blank=True,related_name="antecedents")
     allergies = models.ManyToManyField("Allergie",blank=True)
+    etat_carte = models.IntegerField(default=0) # 0 non demande / 1 demande / 2 donne
+    
+    @property
+    def can_demande(self):
+        return self.etat_carte == 0
+    
     
     REQUIRED_FIELDS = ["carte_id"]
 
@@ -62,11 +70,22 @@ class Patient(Profile):
         qr.add_data(data)
         qr.make(fit=True)
         img = qr.make_image(fill_color="black", back_color="white")
+        img = img.resize((200,200))
+        background = Image.open('./media/1.jpg')
+        qr_position = (background.width - img.width - 50, background.height - img.height - 50)  # Adjust the position as needed
+        background.paste(img, qr_position)
         img_path = f"./media/patient_qr{self.id}.png"  # Adjust the path as needed
         
+        # background = Image.open("./media/1.png")
+        
+        
         img.save(img_path)
+        background_path =f"./media/{self.id}CARD.png"
+        background.save(background_path)
         
         self.qr_code_path = img_path
+        
+        
         
         super().save(*args, **kwargs)
 

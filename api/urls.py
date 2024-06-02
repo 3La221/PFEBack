@@ -71,7 +71,12 @@ urlpatterns = [
     path("delete_cons/<str:id>/",views.delete_cons,name="delete-medic"),
     path("update_cons/<str:id>/",views.update_consultation,name="update-medic"),
     
-    path("exist/",views.does_exist,name="exist")
+    path("exist/",views.does_exist,name="exist"),
+    
+    
+    path("demande_carte/<str:id>/",views.demander_carte,name="demande-card"),
+    path("donner_carte/<str:id>/",views.accepti_demande,name="donner-card"),
+    path("cartes_demande/",views.patient_demande,name="patients-cards"),
 ]
 
 

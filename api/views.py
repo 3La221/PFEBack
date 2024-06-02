@@ -524,3 +524,30 @@ def update_consultation(request,id):
     
     
     return Response("Consultation Updated !!", status=status.HTTP_201_CREATED)
+
+
+
+
+@api_view(["POST"])
+def demander_carte(request,id):
+    try:
+        patient = Patient.objects.get(id=id)
+        patient.etat_carte = 1
+        patient.save()
+        return Response("Demande Envoyée !!", status=status.HTTP_201_CREATED)
+    except Patient.DoesNotExist:
+        return Response("Patient Not Found !!", status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(["GET"])
+def patient_demande(request):
+    patients = Patient.objects.filter(etat_carte=1)
+    serializer = PatientChwyaSerializer(instance=patients,many=True)
+    return Response(serializer.data,status=status.HTTP_200_OK)
+
+@api_view(["POST"])
+def accepti_demande(request,id):
+    patient = Patient.objects.get(id=id)
+    patient.etat_carte = 2
+    patient.save()
+    return Response("Demande Acceptée !!", status=status.HTTP_201_CREATED)
