@@ -98,6 +98,7 @@ class ConsultationSerializer(ModelSerializer):
         try:
             doctor = Doctor.objects.get(id=instance.doctor.id)
             representation['doctor'] = f'Dr.{doctor.first_name} {doctor.last_name}'  # Concatenate first_name and last_name
+            representation['doctor_id'] = doctor.id
         except:
             pass
         representation['date'] = instance.date.strftime('%Y-%m-%d')
@@ -307,12 +308,18 @@ class DocumentMedicaleSerializer(ModelSerializer):
         if hasattr(user, 'doctor'):
             doctor = Doctor.objects.get(id=representation["doctor"])
             representation['doctor'] = f'Dr.{doctor.first_name} {doctor.last_name}'
+            representation['doctor_id'] = doctor.id
+
         elif hasattr(user, 'labo'):
             labo = Labo.objects.get(id=representation["doctor"])
             representation['doctor'] = f'{labo.name} Labo'
+            representation['doctor_id'] = labo.id
+
         elif hasattr(user, 'centre'):
             centre = Centre.objects.get(id=representation["doctor"])
             representation['doctor'] = f'{centre.name} Centre'
+            representation['doctor_id'] = centre.id
+
             
         representation['date'] = instance.date.strftime('%Y-%m-%d')
         
