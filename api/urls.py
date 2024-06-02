@@ -64,6 +64,12 @@ urlpatterns = [
     path("refuse/<str:id>/",views.non_valide,name="refuse"),
     path("data/",views.data,name="data"),
     
+    path("edit/<str:id>/",views.edit_patient,name="edit"),
+    path("delete/<str:id>/",views.delete_patient,name="delete"),
+    
+    path("delete_doc/<str:id>/",views.delete_doc,name="delete-doc"),
+    path("delete_cons/<str:id>/",views.delete_cons,name="delete-medic"),
+    
     path("exist/",views.does_exist,name="exist")
 ]
 

@@ -167,7 +167,7 @@ class PatientInfoSerializer(ModelSerializer):
     
     class Meta:
         model = Patient
-        fields = ['id','first_name','last_name' ,'carte_id', 'birth_date', 'numero_tel',
+        fields = ['id','first_name','last_name' , 'birth_date',
                 'blood_type', 'gender', 'emergency_number','address','nbr_children',
                 'married', 'maladies','allergies']
         

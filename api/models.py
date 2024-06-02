@@ -28,7 +28,7 @@ class Profile(AbstractUser):
     
     
 class Patient(Profile):
-    carte_id = models.CharField(max_length=255, unique=True)
+    carte_id = models.CharField(max_length=255, unique=True,blank=True,null=True)
     img = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
     birth_date = models.DateField(null = True)
     numero_tel = models.CharField(max_length=20, blank=True, null=True)

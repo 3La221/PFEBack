@@ -170,14 +170,37 @@ def login(request):
 #         return Response("You can't access this data" , status=status.HTTP_401_UNAUTHORIZED)
 
 
+@api_view(["DELETE"])
+def delete_patient(request,id):
+    try:
+        password = request.data["password"]
+        try:
+            patient = Patient.objects.get(id=id)
+            if not patient.check_password(password):
+                return Response("Invalid Password !!", status=status.HTTP_401_UNAUTHORIZED)
+            patient.delete()
+            return Response("Patient Deleted !!", status=status.HTTP_201_CREATED)
+        except Patient.DoesNotExist:
+            return Response("Patient Not Found !!", status=status.HTTP_404_NOT_FOUND)
+    except KeyError:
+        return Response("Password Required !!", status=status.HTTP_400_BAD_REQUEST)
+
 @api_view(['POST'])
 def does_exist(request):
-    carte_id = request.data["carte_id"]
-    try :
-        patient = Patient.objects.get(carte_id=carte_id)
-        return Response({"message":"Patient Exist" , "exist":True , "id":patient.id } ,status=status.HTTP_200_OK)
-    except Patient.DoesNotExist:
-        return Response({"message":"Patient Doesn't Exist","exist":False},status=status.HTTP_404_NOT_FOUND)
+    try:
+        carte_id = request.data["carte_id"]
+        try :
+            patient = Patient.objects.get(carte_id=carte_id)
+            return Response({"message":"Patient Exist" , "exist":True , "id":patient.id } ,status=status.HTTP_200_OK)
+        except Patient.DoesNotExist:
+            return Response({"message":"Patient Doesn't Exist","exist":False},status=status.HTTP_404_NOT_FOUND)
+    except KeyError:
+        id = request.data["id"]
+        try:
+            patient = Patient.objects.get(id=id)
+            return Response({"message":"User Exist" , "exist":True , "id":patient.id } ,status=status.HTTP_200_OK)
+        except Patient.DoesNotExist:
+            return Response({"message":"User Doesn't Exist","exist":False},status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET'])
 
@@ -188,6 +211,17 @@ def get_patient_cardinfo(request,pk):
         return Response(serializer.data,status=status.HTTP_200_OK)
 
 
+@api_view(['PUT'])
+def edit_patient(request,id):
+    if request.method == "PUT":
+        patient = Patient.objects.get(id=id)
+        serializer = PatientSerializer(instance=patient,data=request.data,partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response("Patient Updated !!", status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
 @api_view(['GET'])
 def get_patient_details(request,pk):
     if request.method == "GET":
@@ -195,7 +229,20 @@ def get_patient_details(request,pk):
         serializer = PatientDetailsSerializer(instance=patient,many=False)
         return Response(serializer.data,status=status.HTTP_200_OK)
 
-        
+
+@api_view(["DELETE"])
+def delete_doc(request,id):
+    doc = DocumentMedicale.objects.get(id=id)
+    doc.delete()
+    return Response("Document Deleted !!", status=status.HTTP_201_CREATED)
+
+@api_view(["DELETE"])
+def delete_cons(rquest,id):
+    cons = Consultation.objects.get(id=id)
+    cons.delete()
+    return Response("Consultation Deleted !!", status=status.HTTP_201_CREATED)
+ 
+       
 class MaladieListCreateAPIView(generics.ListCreateAPIView):
     queryset = Maladie.objects.all()
     serializer_class = MaladieSerializer
