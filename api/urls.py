@@ -69,6 +69,7 @@ urlpatterns = [
     
     path("delete_doc/<str:id>/",views.delete_doc,name="delete-doc"),
     path("delete_cons/<str:id>/",views.delete_cons,name="delete-medic"),
+    path("update_cons/<str:id>/",views.update_consultation,name="update-medic"),
     
     path("exist/",views.does_exist,name="exist")
 ]

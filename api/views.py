@@ -497,3 +497,28 @@ def get_non_valide(request):
         "labos":serializer2.data,
         "centres":serializer3.data
     },status=status.HTTP_200_OK)
+    
+
+@api_view(["PUT"])
+def update_consultation(request,id):
+    cons = Consultation.objects.get(id=id)
+    
+    medicaments = request.data.pop('medicaments',cons.medicaments.all())
+    cons.medicaments.all().delete()
+
+    note = request.data.pop('note',cons.note)
+    maladie = request.data.pop('maladie',cons.maladie)
+    
+    for medicament in medicaments:
+        medic_id = medicament.pop("medicament")
+        medic = Medicament.objects.get(id=medic_id)
+        med = MedicamentDetails.objects.create(consultation = cons ,medicament = medic ,**medicament)
+        med.save()
+    cons.note = note 
+    maladiep = MaladieP.objects.get(id=maladie["id"])
+    maladiep.affiche = maladie["affiche"] 
+    maladiep.save()
+    cons.save()
+    
+    
+    return Response("Consultation Updated !!", status=status.HTTP_201_CREATED)

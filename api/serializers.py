@@ -6,10 +6,15 @@ from rest_framework import generics
 
 # Create serializers for each class
 class PatientSerializer(ModelSerializer):
+    
+    
+    
 
     class Meta:
         model = Patient
         fields ='__all__'
+        
+    
         
     def create(self, validated_data):
         user = Patient.objects.create_user(**validated_data)
@@ -105,6 +110,29 @@ class ConsultationSerializer(ModelSerializer):
         return representation
     
     
+    # def update(self, instance, validated_data):
+        
+    #     print("UPDATTE")
+
+        
+    #     print("maladie",maladie)
+    #     instance.note = note
+    #     maladiep = MaladieP.objects.get(id=maladie["id"])
+    #     maladiep.affiche = maladie["affiche"]
+    #     maladiep.save()
+        
+        
+    #     for medicament in medicaments:
+    #         med = MedicamentDetails.objects.create(consultation = instance , **medicament)
+    #         med.save()
+        
+        
+        
+            
+        
+        
+    #     return instance
+    
     def create(self, validated_data):
         patient = validated_data['patient']
         maladie = validated_data.pop('maladie',{})
@@ -133,13 +161,18 @@ class AntecedentSerializer(ModelSerializer):
 
 
 class PatientDetailsSerializer(ModelSerializer):
-    maladies = MaladiePSerializer(many=True)
+    maladies = serializers.SerializerMethodField()
     antecedents = AntecedentSerializer(many=True)
     radios = serializers.SerializerMethodField()
     analyses = serializers.SerializerMethodField()
     chirurgies = serializers.SerializerMethodField()
     allergies = AllergieSerializer(many=True)
     consultations = ConsultationSerializer(many=True)
+    
+    
+    def get_maladies(self, obj):
+        chronic_maladies = obj.maladies.filter(affiche=True)
+        return MaladiePSerializer(chronic_maladies, many=True).data
     
     
     def get_chirurgies(self, obj):
@@ -181,6 +214,7 @@ class PatientInfoSerializer(ModelSerializer):
     def get_allergies(self, obj):
         affiche_allergies = obj.allergies.filter(affiche=True)
         return AllergieSerializer(affiche_allergies, many=True).data
+    
     
     class Meta:
         model = Patient
