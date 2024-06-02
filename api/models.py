@@ -72,18 +72,14 @@ class Patient(Profile):
         img = qr.make_image(fill_color="black", back_color="white")
         img = img.resize((200,200))
         background = Image.open('./media/1.jpg')
-        qr_position = (background.width - img.width - 50, background.height - img.height - 50)  # Adjust the position as needed
+        qr_position = (background.width - img.width - 150, background.height - img.height - 200)  # Adjust the position as needed
         background.paste(img, qr_position)
-        img_path = f"./media/patient_qr{self.id}.png"  # Adjust the path as needed
-        
-        # background = Image.open("./media/1.png")
         
         
-        img.save(img_path)
+        
         background_path =f"./media/{self.id}CARD.png"
         background.save(background_path)
         
-        self.qr_code_path = img_path
         
         
         
