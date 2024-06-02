@@ -65,9 +65,25 @@ class MaladieDSerializer(serializers.ModelSerializer):
         model = Maladie
         fields = ['id','name','isChronic','maladie_type']
 
+class MaladiePSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MaladieP
+        fields = '__all__'
+        
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        try:
+            maladie = Maladie.objects.get(id=instance.maladie.id)
+            representation['maladie'] = maladie.name
+        except:
+            pass
+        return representation
+
+
 class ConsultationSerializer(ModelSerializer):
     # ordonance = OrdonanceSerializer()
     medicaments = MedicamentDetailsSerializer(many=True)
+    maladie = MaladiePSerializer()
     class Meta:
         model = Consultation
         fields = ['id','patient','doctor','maladie','note','date','maladie','medicaments']
@@ -81,8 +97,8 @@ class ConsultationSerializer(ModelSerializer):
             pass
         representation['date'] = instance.date.strftime('%Y-%m-%d')
         try :
-            maladie = Maladie.objects.get(id=instance.maladie.id)
-            representation['maladie'] = MaladieSerializer(maladie).data
+            maladie = MaladieP.objects.get(id=instance.maladie.id)
+            representation['maladie'] = MaladiePSerializer(maladie).data
         except:
             pass
         
@@ -91,16 +107,17 @@ class ConsultationSerializer(ModelSerializer):
     
     def create(self, validated_data):
         patient = validated_data['patient']
-        maladie = validated_data['maladie']
+        maladie = validated_data.pop('maladie',{})
         medicaments = validated_data.pop('medicaments',[])
         
         
         consultation = Consultation.objects.create(**validated_data)
         
-        patient.maladies.add(maladie)
         
-    
-        
+        maladiep = MaladieP.objects.create(maladie=maladie["maladie"],affiche=maladie["affiche"],patient=patient)
+        consultation.maladie = maladiep
+        consultation.save()
+        maladiep.save()
         for medicament in medicaments:
             MedicamentDetails.objects.create(consultation = consultation , **medicament)
     
@@ -116,7 +133,7 @@ class AntecedentSerializer(ModelSerializer):
 
 
 class PatientDetailsSerializer(ModelSerializer):
-    maladies = MaladieDSerializer(many=True)
+    maladies = MaladiePSerializer(many=True)
     antecedents = AntecedentSerializer(many=True)
     radios = serializers.SerializerMethodField()
     analyses = serializers.SerializerMethodField()
@@ -158,8 +175,8 @@ class PatientInfoSerializer(ModelSerializer):
 
     
     def get_maladies(self, obj):
-        chronic_maladies = obj.maladies.filter(isChronic=True)
-        return MaladieDSerializer(chronic_maladies, many=True).data
+        chronic_maladies = obj.maladies.filter(affiche=True)
+        return MaladiePSerializer(chronic_maladies, many=True).data
 
     def get_allergies(self, obj):
         affiche_allergies = obj.allergies.filter(affiche=True)

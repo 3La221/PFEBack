@@ -37,7 +37,6 @@ class Patient(Profile):
     emergency_number = models.CharField(max_length=20, blank=True, null=True)
     married = models.CharField(max_length=20, choices= [(tag.value , tag.name) for tag in SituationMatrimoniale ] , null =True , blank = True , default= SituationMatrimoniale.CELIBATAIRE)
     nbr_children = models.IntegerField(default=0)
-    maladies = models.ManyToManyField("Maladie",blank=True)
     antecedents = models.ManyToManyField("Antecedent",blank=True,related_name="antecedents")
     allergies = models.ManyToManyField("Allergie",blank=True)
     
@@ -120,7 +119,7 @@ class Consultation(models.Model):
     patient = models.ForeignKey(Patient,on_delete=models.CASCADE,related_name ="consultations")
     doctor = models.ForeignKey(Doctor,on_delete=models.CASCADE,related_name ="consultations")
     note = models.TextField(blank=True, null = True)
-    maladie = models.ForeignKey("Maladie",related_name ="maladies" ,
+    maladie = models.OneToOneField("MaladieP",related_name ="consultation" ,
                                 on_delete=models.CASCADE,null=True,blank=True)
     
     
@@ -128,8 +127,16 @@ class Consultation(models.Model):
         return f'{self.patient} - {self.doctor} - {self.date} Consultaion'
 
 
-
+class MaladieP(models.Model):
+    maladie = models.ForeignKey("Maladie",on_delete=models.CASCADE)
+    affiche = models.BooleanField(default=True)
+    patient = models.ForeignKey(Patient,on_delete=models.CASCADE,related_name ="maladies",null=True ,blank=True)
     
+    def __str__(self) -> str:
+        return f'{self.maladie} {self.patient}'
+    
+
+
 class Maladie(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100,blank=True,null= True)
